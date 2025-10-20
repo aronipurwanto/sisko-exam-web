@@ -2,9 +2,7 @@
 	import { page } from '$app/state';
 
 	/** @type {{title?: string, desc?: string, iconTitle?: string}} */
-	let { title = '', desc = '', iconTitle = '' } = $props();
-
-	const url = page.url.pathname;
+	let { title = '', desc = '', iconTitle = '', url = '' } = $props();
 </script>
 
 <div class="app-title">

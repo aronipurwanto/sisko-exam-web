@@ -33,7 +33,8 @@ $primary-color: #00695c;
 
 // Complementry color is used to indecate the loading bar on the top
 // of the page with pace.js plugin
-$complementry-color: adjust_hue($primary-color, 180);
+@use "sass:color";
+$complementry-color: color.adjust($primary-color, $hue: 180deg);
 
 // ------- Sidebar Width --------
 $sidebar-width: 230px;

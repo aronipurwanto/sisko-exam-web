@@ -1,5 +1,6 @@
 // Componant: Sidebar
-
+@use "/static/scss/1-tools/vars" as *;
+@use 'bootstrap/scss/bootstrap.scss' as *;
 .app-sidebar {
 	position: fixed;
 	top: 0;

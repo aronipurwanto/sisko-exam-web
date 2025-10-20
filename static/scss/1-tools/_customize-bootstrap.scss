@@ -2,7 +2,7 @@
 // Customize bootstrap variables to match
 // look and feel of the theme
 //-----------------------------------------------------
-
+@use '/static/scss/1-tools/vars' as *;
 $primary: $primary-color;
 
 // Customize typographic styles
@@ -37,7 +37,7 @@ $btn-transition:
 	background-color 0.3s ease-in-out,
 	border-color 0.3s ease-in-out;
 
-// Custmize form components styles
+// Custmize form component styles
 
 $input-border-radius: 4px;
 $input-border-radius-lg: 4px;
