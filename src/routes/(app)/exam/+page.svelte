@@ -2,8 +2,38 @@
 import {onMount} from "svelte";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
 import {examDelete, examGetList} from "$lib/api/ExamApi.js";
+import {getExamStatusDisplayName} from "$lib/enums/exam-status.js";
 
 let exams = $state([]);
+
+function formatDateWIB(dateString) {
+    if (!dateString) return '-';
+
+    const date = new Date(dateString);
+
+    const options = {
+        timeZone: 'Asia/Jakarta',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    };
+
+    const formatted = date.toLocaleString('id-ID', options);
+    return `${formatted} WIB`;
+}
+
+function formatBoolean(bool) {
+    if (bool === true) {
+        return 'Yes';
+    } else if (bool === false) {
+        return 'No';
+    } else {
+        return '-';
+    }
+}
 
 async function examList() {
     try {
@@ -32,17 +62,17 @@ onMount(async () => {
 <svelte:head>
     <title>Exam List</title>
 </svelte:head>
-<div class="clearfix">
-    <div class="tile rounded">
-        <div class="d-flex justify-content-between align-items-center">
-            <h3 class="tile-title">
-                <i class="bi bi-table me-1"></i>Table Exam
-            </h3>
-            <a class="btn btn-outline-success bi-plus py-1 px-2"
-               href="/exam/add">
-                New Exam
-            </a>
-        </div>
+<div class="card shadow-sm border-1 p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h3 class="tile-title">
+            <i class="bi bi-table me-1"></i>Table Exam
+        </h3>
+        <a class="btn btn-outline-success bi-plus py-1 px-2"
+           href="/exam/add">
+            New Exam
+        </a>
+    </div>
+    <div class="table-responsive">
         <table class="table table-hover">
             <thead>
             <tr>
@@ -66,12 +96,12 @@ onMount(async () => {
                     <td>{exam.id}</td>
                     <td>{exam.name}</td>
                     <td>{exam.instructions}</td>
-                    <td>{exam.durationMinutes}</td>
-                    <td>{exam.randomizeQuestions}</td>
-                    <td>{exam.randomizeOptions}</td>
-                    <td>{exam.status}</td>
-                    <td>{exam.startAt}</td>
-                    <td>{exam.endAt}</td>
+                    <td>{exam.durationMinutes} Minutes</td>
+                    <td>{formatBoolean(exam.randomizeQuestions)}</td>
+                    <td>{formatBoolean(exam.randomizeOptions)}</td>
+                    <td>{getExamStatusDisplayName(exam.status)}</td>
+                    <td>{formatDateWIB(exam.startAt)}</td>
+                    <td>{formatDateWIB(exam.endAt)}</td>
                     <td class="text-center">
                         <a class="btn btn-outline-primary py-0 px-1"
                            href="/exam/{exam.id}">

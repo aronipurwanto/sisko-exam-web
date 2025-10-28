@@ -1,205 +1,213 @@
 <script>
+    import {alertError, alertSuccess} from "$lib/alert.js";
+    import AppTitle from "$lib/components/AppTitle.svelte";
+    import {examGet, examPatch} from "$lib/api/ExamApi.js";
+    import ExamModel from "$lib/models/ExamModel.js";
+    import {getBooleanDisplayYes, getBooleanEnum} from "$lib/enums/boolean.js";
+    import {getExamStatus, getExamStatusDisplayName} from "$lib/enums/exam-status.js";
     import {page} from "$app/state";
     import {onMount} from "svelte";
-    import QuestionModel from "$lib/models/QuestionModel.js";
-    import QuestionOptionModel from "$lib/models/QuestionOptionModel.js";
-    import {getQuestionTypes} from "$lib/enums/question-types.js";
-    import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/enums/answer-policy.js";
-    import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/enums/boolean.js";
-    import {questionGet, questionPatch} from "$lib/api/QuestionApi.js";
-    import {alertConfirm, alertError, alertSuccess} from "$lib/alert.js";
-    import {questionOptionDelete, questionOptionPatch} from "$lib/api/QuestionOptionApi.js";
 
     const {id} = page.params;
-    let question = $state({...new QuestionModel()});
-    let questionOptions = $state([{...new QuestionOptionModel()}])
-    const types = getQuestionTypes();
-    const policies = getAnswerPolicy();
+    let exam = $state({...new ExamModel()});
+
     const booleans = getBooleanEnum();
+    const status = getExamStatus();
 
-    async function questionUpdate() {
+    function formatDateTimeLocal(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function parseLocalDateTime(isoString) {
+        if (!isoString) return null;
+
+        // Buat objek Date dari string ISO (UTC)
+        const date = new Date(isoString);
+
+        // Ambil offset zona waktu lokal (dalam menit)
+        const offset = date.getTimezoneOffset();
+
+        // Buat waktu baru dalam zona lokal
+        return new Date(date.getTime() - offset * 60000);
+    }
+
+
+    function calculateEndAt() {
+        if (exam.startAt && exam.durationMinutes) {
+            const startDate = new Date(exam.startAt);
+            exam.endAt = new Date(startDate.getTime() + exam.durationMinutes * 60000);
+        }
+    }
+
+    function handleStartAtChange(event) {
+        const value = event.target.value;
+        exam.startAt = value ? new Date(value) : null;
+        calculateEndAt();
+    }
+
+    function handleDurationChange(event) {
+        exam.durationMinutes = parseInt(event.target.value);
+        calculateEndAt();
+    }
+
+    async function examEdit() {
         try {
-            await questionPatch(question);
-            await alertSuccess('update question successfully');
+            const examToSend = {
+                ...exam,
+                startAt: exam.startAt ? exam.startAt.toISOString() : null,
+                endAt: exam.endAt ? exam.endAt.toISOString() : null
+            };
+            exam = await examPatch(examToSend);
+            await alertSuccess();
+        } catch (err) {
+            console.log(err);
+            await alertError(err.message);
+        }
+    }
+
+    async function examDetails() {
+        try {
+            exam = await examGet(id);
+            exam.startAt = parseLocalDateTime(exam.startAt);
+            exam.endAt = parseLocalDateTime(exam.endAt);
         } catch (err) {
             await alertError(err.message);
         }
     }
 
-    async function questionDetail() {
-        try {
-            question = await questionGet(id);
-            questionOptions = question.questionOptions;
-        } catch (err) {
-            await alertError(err.message);
-        }
-    }
-
-    async function questionOptionUpdate() {
-        try {
-            questionOptions = questionOptions.map((option) => {
-                questionOptionPatch(option);
-            });
-        } catch (err) {
-            await alertError(err.message);
-        }
-    }
-
-    async function questionForm(e) {
-        e.preventDefault();
-        await questionUpdate();
-        await questionOptionUpdate();
-    }
-
-    async function questionOptionRemove(id) {
-        if (!await alertConfirm('are you sure want to delete this question-option?')) return;
-        try {
-            await questionOptionDelete(id);
-            await alertSuccess('delete successfully');
-            await questionDetail();
-        } catch (err) {
-            await alertError(err.message);
-        }
+    async function examForm(event) {
+        event.preventDefault();
+        await examEdit();
     }
 
     onMount(async () => {
-        await questionDetail();
+        await examDetails();
     });
 </script>
+<svelte:head>
+    <title>New Exam</title>
+</svelte:head>
+<AppTitle
+        title="Exam"
+        desc="This page is add exam"
+        iconTitle="bi bi-table"
+        url="/exam"
+/>
 <div class="card shadow-sm border-1 p-4 mb-4">
-    <h2 class="h4 fw-bold mb-4 text-dark">Question Edit</h2>
-
-    <form onsubmit={questionForm}>
-        <!-- Type -->
+    <h2 class="h4 fw-bold mb-4 text-dark">
+        <i class="bi bi-folder-fill me-1"></i>New Exam
+    </h2>
+    <form onsubmit={examForm}>
         <div class="mb-3">
-            <label for="qtype" class="form-label fw-semibold">Type</label>
+            <label for="name" class="form-label fw-semibold">Name:</label>
             <input
-                    id="qtype"
+                    id="name"
                     type="text"
-                    bind:value={question.qtype}
                     class="form-control"
+                    bind:value={exam.name}
+            />
+        </div>
+        <div class="mb-3">
+            <label for="instruction" class="form-label fw-semibold">Instruction:</label>
+            <input
+                    id="instruction"
+                    type="text"
+                    class="form-control"
+                    bind:value={exam.instructions}
+            />
+        </div>
+        <div class="mb-3">
+            <label for="durationMinutes" class="form-label fw-semibold">Duration In Minutes</label>
+            <input
+                    id="durationMinutes"
+                    type="number"
+                    class="form-control"
+                    value={exam.durationMinutes}
+                    oninput={handleDurationChange}
+            />
+        </div>
+        <div class="mb-3">
+            <label for="randomizeQuestions" class="form-label fw-semibold">Randomize Question?</label>
+            <select
+                    id="randomizeQuestions"
+                    class="form-select"
+                    bind:value={exam.randomizeQuestions}
+            >
+                <option value="" disabled>select correct</option>
+                {#each booleans as boolean}
+                    <option value={boolean}>{getBooleanDisplayYes(boolean)}</option>
+                {/each}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="randomizeOptions" class="form-label fw-semibold">Randomize Options?</label>
+            <select
+                    id="randomizeOptions"
+                    class="form-select"
+                    bind:value={exam.randomizeOptions}
+            >
+                <option value="" disabled>select correct</option>
+                {#each booleans as boolean}
+                    <option value={boolean}>{getBooleanDisplayYes(boolean)}</option>
+                {/each}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="examStatus" class="form-label fw-semibold">Status:</label>
+            <select
+                    id="examStatus"
+                    class="form-select"
+                    bind:value={exam.status}
+            >
+                <option value="" disabled>select status</option>
+                {#each status as s}
+                    <option value={s}>{getExamStatusDisplayName(s)}</option>
+                {/each}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="startAt" class="form-label fw-semibold">Start At:</label>
+            <input
+                    id="startAt"
+                    type="datetime-local"
+                    class="form-control"
+                    value={formatDateTimeLocal(exam.startAt)}
+                    oninput={handleStartAtChange}
+            />
+            <small class="form-text text-muted">Start Exam Time</small>
+        </div>
+        <div class="mb-3">
+            <label for="endAt" class="form-label fw-semibold">End At:</label>
+            <input
+                    id="endAt"
+                    type="datetime-local"
+                    class="form-control"
+                    value={formatDateTimeLocal(exam.endAt)}
                     readonly
             />
+            {#if exam.durationMinutes === 0}
+                <small class="form-text text-muted">
+                    End Exam Time
+                </small>
+            {:else}
+                <small class="form-text text-muted">
+                    automatic set {exam.durationMinutes || 0} minutes after time set
+                </small>
+            {/if}
         </div>
-
-        <!-- Answer Policy -->
-        {#if question.qtype === types[0]}
-            <div class="mb-3">
-                <label for="answer-policy" class="form-label fw-semibold">Answer Policy</label>
-                <select
-                        id="answer-policy"
-                        bind:value={question.questionAnswerPolicy}
-                        class="form-select"
-                        required
-                >
-                    <option value="" disabled>select policy</option>
-                    {#each policies as policy}
-                        <option value={policy} selected={question.questionAnswerPolicy === policy}>
-                            {getAnswerPolicyDisplayName(policy)}
-                        </option>
-                    {/each}
-                </select>
-            </div>
-        {/if}
-
-        <!-- Stem -->
-        <div class="mb-3">
-            <label for="stem" class="form-label fw-semibold">Stem</label>
-            <input
-                    id="stem"
-                    type="text"
-                    bind:value={question.stem}
-                    class="form-control"
-            />
-        </div>
-
-        <!-- Point -->
-        <div class="mb-3">
-            <label for="point" class="form-label fw-semibold">Point</label>
-            <input
-                    id="point"
-                    type="number"
-                    bind:value={question.pointsDefault}
-                    class="form-control"
-            />
-        </div>
-
-        <!-- MCO Options -->
-        {#each questionOptions as questionOption, i}
-            <div class="card border-1 shadow-sm mb-4">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold mb-3">
-                        MCO {questionOption.label || i + 1}
-                    </h5>
-
-                    <input type="hidden" bind:value={questionOption.id} />
-
-                    <div class="mb-3">
-                        <label for="label-{i}" class="form-label fw-semibold">Label</label>
-                        <input
-                                id="label-{i}"
-                                bind:value={questionOption.label}
-                                class="form-control"
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="content-{i}" class="form-label fw-semibold">Content</label>
-                        <input
-                                id="content-{i}"
-                                type="text"
-                                bind:value={questionOption.content}
-                                class="form-control"
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="correct-{i}" class="form-label fw-semibold">Correct</label>
-                        <select
-                                id="correct-{i}"
-                                bind:value={questionOption.correct}
-                                class="form-select"
-                        >
-                            <option value="" disabled>select correct</option>
-                            {#each booleans as boolean}
-                                <option value={boolean} selected={questionOption.correct === boolean}>
-                                    {getBooleanEnumDisplayName(boolean)}
-                                </option>
-                            {/each}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="orderIndex-{i}" class="form-label fw-semibold">Order Index</label>
-                        <input
-                                id="orderIndex-{i}"
-                                type="number"
-                                bind:value={questionOption.orderIndex}
-                                class="form-control"
-                        />
-                    </div>
-
-                    {#if questionOptions.length > 2}
-                        <div class="d-flex justify-content-end">
-                            <button type="button"
-                                    onclick={() => questionOptionRemove(questionOption.id)}
-                                    class="btn btn-outline-danger btn-sm"
-                            >
-                                <i class="fas fa-trash-alt me-2"></i> Delete
-                            </button>
-                        </div>
-                    {/if}
-                </div>
-            </div>
-        {/each}
-
-        <!-- Action Buttons -->
-        <div class="d-flex justify-content-end gap-2 mt-3">
+        <div class="d-flex justify-content-end gap-2 mt-4">
             <button type="submit" class="btn btn-outline-warning">
-                <i class="bi bi-save me-1"></i> Save Changes
+                <i class="bi bi-check me-1"></i>Save Changes
             </button>
-            <a href="/question" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back
+            <a href="/exam" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back
             </a>
         </div>
     </form>

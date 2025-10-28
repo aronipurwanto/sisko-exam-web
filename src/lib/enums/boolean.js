@@ -14,3 +14,11 @@ export function getBooleanEnumDisplayName(type) {
     };
     return displayNames[type] || type;
 }
+
+export function getBooleanDisplayYes(type) {
+    const displayNames = {
+        [BooleanEnum.true]: 'Yes',
+        [BooleanEnum.false]: 'No'
+    }
+    return displayNames[type] || type;
+}

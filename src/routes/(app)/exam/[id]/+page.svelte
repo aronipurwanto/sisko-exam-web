@@ -1,133 +1,138 @@
 <script>
     import {page} from "$app/state";
-    import {onMount} from "svelte";
-    import {questionGet} from "$lib/api/QuestionApi.js";
+    import {getBooleanDisplayYes} from "$lib/enums/boolean.js";
+    import {getExamStatusDisplayName} from "$lib/enums/exam-status.js";
+    import ExamModel from "$lib/models/ExamModel.js";
+    import {examGet} from "$lib/api/ExamApi.js";
     import {alertError} from "$lib/alert.js";
-    import QuestionModel from "$lib/models/QuestionModel.js";
-    import {getBooleanEnumDisplayName} from "$lib/enums/boolean.js";
+    import {onMount} from "svelte";
 
     const {id} = page.params;
-    let question = $state({...new QuestionModel()});
+    let exam = $state({...new ExamModel()})
 
-    async function questionDetail() {
+    function formatDateWIB(dateString) {
+        if (!dateString) return '-';
+
+        const date = new Date(dateString);
+
+        const options = {
+            timeZone: 'Asia/Jakarta',
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        };
+
+        const formatted = date.toLocaleString('id-ID', options);
+        return `${formatted} WIB`;
+    }
+
+    async function examDetails() {
         try {
-            question = await questionGet(id);
+            exam = await examGet(id);
         } catch (err) {
             await alertError(err.message);
         }
     }
 
     onMount(async () => {
-        await questionDetail();
+        await examDetails();
     });
 </script>
 <svelte:head>
-    <title>Question Details</title>
+    <title>Exam Details</title>
 </svelte:head>
 <div class="card shadow-sm border-1 p-4 mb-4">
-    <h2 class="h4 fw-bold mb-4 text-dark">Question Details</h2>
-    <form>
-        <div class="mb-3">
-            <label for="qtype" class="form-label fw-semibold">Type</label>
-            <input
-                    id="qtype"
-                    type="text"
-                    bind:value={question.qtype}
-                    class="form-control"
-                    readonly
-            />
-        </div>
-
-        {#if question.qtype === 'MCO'}
-            <div class="mb-3">
-                <label for="answer-policy" class="form-label fw-semibold">Answer Policy</label>
-                <input
-                        id="answer-policy"
-                        type="text"
-                        bind:value={question.questionAnswerPolicy}
-                        class="form-control"
-                        readonly
-                />
-            </div>
-        {/if}
-
-        <div class="mb-3">
-            <label for="stem" class="form-label fw-semibold">Stem</label>
-            <input
-                    id="stem"
-                    type="text"
-                    bind:value={question.stem}
-                    class="form-control"
-                    readonly
-            />
-        </div>
-
-        <div class="mb-3">
-            <label for="point" class="form-label fw-semibold">Point</label>
-            <input
-                    id="point"
-                    type="number"
-                    bind:value={question.pointsDefault}
-                    class="form-control"
-                    readonly
-            />
-        </div>
-        {#each question.questionOptions as questionOption, i}
-            <div class="card border-1 shadow-sm mb-4">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold mb-3">
-                        MCO {questionOption.label || i + 1}
-                    </h5>
-
-                    <div class="mb-3">
-                        <label for="label-{i}" class="form-label fw-semibold">Label</label>
-                        <input
-                                id="label-{i}"
-                                bind:value={questionOption.label}
-                                class="form-control"
-                                readonly
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="content-{i}" class="form-label fw-semibold">Content</label>
-                        <input
-                                id="content-{i}"
-                                type="text"
-                                bind:value={questionOption.content}
-                                class="form-control"
-                                readonly
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="correct-{i}" class="form-label fw-semibold">Correct</label>
-                        <input
-                                id="correct-{i}"
-                                value={getBooleanEnumDisplayName(questionOption.correct)}
-                                class="form-control"
-                                readonly
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="orderIndex-{i}" class="form-label fw-semibold">Order Index</label>
-                        <input
-                                id="orderIndex-{i}"
-                                type="number"
-                                bind:value={questionOption.orderIndex}
-                                class="form-control"
-                                readonly
-                        />
-                    </div>
-                </div>
-            </div>
-        {/each}
-
-        <div class="d-flex justify-content-end mt-3">
-            <a class="btn btn-outline-secondary" href="/question">
-                <i class="bi bi-arrow-left me-1"></i>Back
-            </a>
-        </div>
-    </form>
+    <h2 class="h4 fw-bold mb-4 text-dark">
+        <i class="bi bi-folder-fill me-1"></i>Exam Details
+    </h2>
+    <div class="mb-3">
+        <label for="name" class="form-label fw-semibold">Name:</label>
+        <input
+                id="name"
+                type="text"
+                class="form-control"
+                bind:value={exam.name}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="instruction" class="form-label fw-semibold">Instruction:</label>
+        <input
+                id="instruction"
+                type="text"
+                class="form-control"
+                bind:value={exam.instructions}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="durationMinutes" class="form-label fw-semibold">Duration In Minutes</label>
+        <input
+                id="durationMinutes"
+                type="number"
+                class="form-control"
+                bind:value={exam.durationMinutes}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="randomizeQuestions" class="form-label fw-semibold">Randomize Question?</label>
+        <input
+                id="randomizeQuestions"
+                type="text"
+                class="form-control"
+                value={getBooleanDisplayYes(exam.randomizeQuestions)}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="randomizeOptions" class="form-label fw-semibold">Randomize Options?</label>
+        <input
+                id="randomizeOptions"
+                type="text"
+                class="form-control"
+                value={getBooleanDisplayYes(exam.randomizeOptions)}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="examStatus" class="form-label fw-semibold">Status:</label>
+        <input
+                id="examStatus"
+                type="text"
+                class="form-control"
+                value={getExamStatusDisplayName(exam.status)}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="startAt" class="form-label fw-semibold">Start At:</label>
+        <input
+                id="startAt"
+                type="text"
+                class="form-control"
+                value={formatDateWIB(exam.startAt)}
+                readonly
+        />
+        <small class="form-text text-muted">Start Exam Time</small>
+    </div>
+    <div class="mb-3">
+        <label for="endAt" class="form-label fw-semibold">End At:</label>
+        <input
+                id="endAt"
+                type="text"
+                class="form-control"
+                value={formatDateWIB(exam.endAt)}
+                readonly
+        />
+        <small class="form-text text-muted">End Exam Time</small>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a href="/exam" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
 </div>

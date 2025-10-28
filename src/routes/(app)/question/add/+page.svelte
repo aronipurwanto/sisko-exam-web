@@ -8,7 +8,7 @@
     import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/enums/answer-policy.js";
     import {getLabel} from "$lib/enums/label.js";
     import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/enums/boolean.js";
-    import {questionOptionListPost, questionOptionPost} from "$lib/api/QuestionOptionApi.js";
+    import {questionOptionListPost} from "$lib/api/QuestionOptionApi.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
 
     let question = $state({...new QuestionModel()});
@@ -30,7 +30,6 @@
         }
 
         if (question.qtype === types[0]) {
-            // isi questionId untuk setiap option
             questionOptions = questionOptions.map(opt => ({
                 ...opt,
                 questionId: question.id,
@@ -45,10 +44,6 @@
     async function questionOptionAdd() {
         try {
             await questionOptionListPost(questionOptions);
-            // iterasi array
-            // questionOptions = questionOptions.map(opt => (
-            //     questionOptionPost(opt)
-            // ));
             await alertSuccess("save question option success");
             await goto("/question");
         } catch (err) {

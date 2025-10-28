@@ -56,3 +56,18 @@
 
 // Icons
 @use 'bootstrap-icons/font/bootstrap-icons.min.css' as *;
+
+/* Aktifkan scroll horizontal hanya pada container tabel */
+.app-content .card .table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Supaya tabel punya lebar cukup besar untuk menimbulkan scroll */
+.app-content .card .table {
+  min-width: 1200px;
+  white-space: nowrap;
+}
+
