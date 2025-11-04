@@ -3,9 +3,9 @@
     import {onMount} from "svelte";
     import QuestionModel from "$lib/models/QuestionModel.js";
     import QuestionOptionModel from "$lib/models/QuestionOptionModel.js";
-    import {getQuestionTypes} from "$lib/enums/question-types.js";
-    import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/enums/answer-policy.js";
-    import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/enums/boolean.js";
+    import {getQuestionTypes} from "$lib/utils/question-types.js";
+    import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/utils/answer-policy.js";
+    import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
     import {questionGet, questionPatch} from "$lib/api/QuestionApi.js";
     import {alertConfirm, alertError, alertSuccess} from "$lib/alert.js";
     import {questionOptionDelete, questionOptionPatch} from "$lib/api/QuestionOptionApi.js";

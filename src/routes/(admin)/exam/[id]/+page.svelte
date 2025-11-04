@@ -1,33 +1,15 @@
 <script>
     import {page} from "$app/state";
-    import {getBooleanDisplayYes} from "$lib/enums/boolean.js";
-    import {getExamStatusDisplayName} from "$lib/enums/exam-status.js";
+    import {getBooleanDisplayYes} from "$lib/utils/boolean.js";
+    import {getExamStatusDisplayName} from "$lib/utils/exam-status.js";
     import ExamModel from "$lib/models/ExamModel.js";
     import {examGet} from "$lib/api/ExamApi.js";
     import {alertError} from "$lib/alert.js";
     import {onMount} from "svelte";
+    import {formatDateWIB} from "$lib/utils/times.js";
 
     const {id} = page.params;
     let exam = $state({...new ExamModel()})
-
-    function formatDateWIB(dateString) {
-        if (!dateString) return '-';
-
-        const date = new Date(dateString);
-
-        const options = {
-            timeZone: 'Asia/Jakarta',
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        };
-
-        const formatted = date.toLocaleString('id-ID', options);
-        return `${formatted} WIB`;
-    }
 
     async function examDetails() {
         try {

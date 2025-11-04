@@ -2,38 +2,11 @@
 import {onMount} from "svelte";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
 import {examDelete, examGetList} from "$lib/api/ExamApi.js";
-import {getExamStatusDisplayName} from "$lib/enums/exam-status.js";
+import {getExamStatusDisplayName} from "$lib/utils/exam-status.js";
+import {getBooleanDisplayYes} from "$lib/utils/boolean.js";
+import {formatDateWIB} from "$lib/utils/times.js";
 
 let exams = $state([]);
-
-function formatDateWIB(dateString) {
-    if (!dateString) return '-';
-
-    const date = new Date(dateString);
-
-    const options = {
-        timeZone: 'Asia/Jakarta',
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    };
-
-    const formatted = date.toLocaleString('id-ID', options);
-    return `${formatted} WIB`;
-}
-
-function formatBoolean(bool) {
-    if (bool === true) {
-        return 'Yes';
-    } else if (bool === false) {
-        return 'No';
-    } else {
-        return '-';
-    }
-}
 
 async function examList() {
     try {
@@ -97,8 +70,8 @@ onMount(async () => {
                     <td>{exam.name}</td>
                     <td>{exam.instructions}</td>
                     <td>{exam.durationMinutes} Minutes</td>
-                    <td>{formatBoolean(exam.randomizeQuestions)}</td>
-                    <td>{formatBoolean(exam.randomizeOptions)}</td>
+                    <td>{getBooleanDisplayYes(exam.randomizeQuestions)}</td>
+                    <td>{getBooleanDisplayYes(exam.randomizeOptions)}</td>
                     <td>{getExamStatusDisplayName(exam.status)}</td>
                     <td>{formatDateWIB(exam.startAt)}</td>
                     <td>{formatDateWIB(exam.endAt)}</td>

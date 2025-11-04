@@ -19,25 +19,23 @@
             link: '/'
         },
         {
-            label: 'UI Elements',
+            label: 'Tables',
             icon: 'bi bi-laptop',
             submenu: [
                 {
-                    label: 'Bootstrap Elements',
+                    label: 'Exams',
                     icon: 'bi bi-circle-fill',
-                    link: '/bootstrap-components'
+                    link: '/exam'
                 },
                 {
-                    label: 'Font Icons',
+                    label: 'Questions',
                     icon: 'bi bi-circle-fill',
-                    link: 'https://icons.getbootstrap.com/',
-                    target: '_blank',
-                    rel: 'noopener'
+                    link: '/question',
                 },
                 {
-                    label: 'Cards',
+                    label: 'Exam-Assignment',
                     icon: 'bi bi-circle-fill',
-                    link: '/cards'
+                    link: '/exam-assignment'
                 },
                 {
                     label: 'Widgets',
@@ -63,7 +61,7 @@
             ]
         },
         {
-            label: 'Tables',
+            label: 'Table',
             icon: 'bi bi-table',
             submenu: [
                 {

@@ -4,7 +4,7 @@
     import {questionGet} from "$lib/api/QuestionApi.js";
     import {alertError} from "$lib/alert.js";
     import QuestionModel from "$lib/models/QuestionModel.js";
-    import {getBooleanEnumDisplayName} from "$lib/enums/boolean.js";
+    import {getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
 
     const {id} = page.params;
     let question = $state({...new QuestionModel()});

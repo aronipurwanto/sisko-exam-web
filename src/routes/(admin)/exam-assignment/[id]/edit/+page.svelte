@@ -1,12 +1,14 @@
 <script>
     import {alertError, alertSuccess} from "$lib/alert.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
-    import {examPost} from "$lib/api/ExamApi.js";
+    import {examGet, examPatch} from "$lib/api/ExamApi.js";
     import ExamModel from "$lib/models/ExamModel.js";
-    import {getBooleanDisplayYes, getBooleanEnum} from "$lib/enums/boolean.js";
-    import {getExamStatus, getExamStatusDisplayName} from "$lib/enums/exam-status.js";
-    import {goto} from "$app/navigation";
+    import {getBooleanDisplayYes, getBooleanEnum} from "$lib/utils/boolean.js";
+    import {getExamStatus, getExamStatusDisplayName} from "$lib/utils/exam-status.js";
+    import {page} from "$app/state";
+    import {onMount} from "svelte";
 
+    const {id} = page.params;
     let exam = $state({...new ExamModel()});
 
     const booleans = getBooleanEnum();
@@ -22,6 +24,20 @@
         const minutes = String(d.getMinutes()).padStart(2, '0');
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
+
+    function parseLocalDateTime(isoString) {
+        if (!isoString) return null;
+
+        // Buat objek Date dari string ISO (UTC)
+        const date = new Date(isoString);
+
+        // Ambil offset zona waktu lokal (dalam menit)
+        const offset = date.getTimezoneOffset();
+
+        // Buat waktu baru dalam zona lokal
+        return new Date(date.getTime() - offset * 60000);
+    }
+
 
     function calculateEndAt() {
         if (exam.startAt && exam.durationMinutes) {
@@ -41,17 +57,26 @@
         calculateEndAt();
     }
 
-    async function examAdd() {
+    async function examEdit() {
         try {
             const examToSend = {
                 ...exam,
                 startAt: exam.startAt ? exam.startAt.toISOString() : null,
                 endAt: exam.endAt ? exam.endAt.toISOString() : null
             };
+            exam = await examPatch(examToSend);
+            await alertSuccess();
+        } catch (err) {
+            console.log(err);
+            await alertError(err.message);
+        }
+    }
 
-            exam = await examPost(examToSend);
-            await alertSuccess()
-            await goto('/exam')
+    async function examDetails() {
+        try {
+            exam = await examGet(id);
+            exam.startAt = parseLocalDateTime(exam.startAt);
+            exam.endAt = parseLocalDateTime(exam.endAt);
         } catch (err) {
             await alertError(err.message);
         }
@@ -59,8 +84,12 @@
 
     async function examForm(event) {
         event.preventDefault();
-        await examAdd();
+        await examEdit();
     }
+
+    onMount(async () => {
+        await examDetails();
+    });
 </script>
 <svelte:head>
     <title>New Exam</title>
@@ -174,8 +203,8 @@
             {/if}
         </div>
         <div class="d-flex justify-content-end gap-2 mt-4">
-            <button type="submit" class="btn btn-outline-success">
-                <i class="bi bi-check me-1"></i>Save
+            <button type="submit" class="btn btn-outline-warning">
+                <i class="bi bi-check me-1"></i>Save Changes
             </button>
             <a href="/exam" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Back

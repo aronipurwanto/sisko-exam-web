@@ -4,10 +4,10 @@
     import {questionPost} from "$lib/api/QuestionApi.js";
     import {alertError, alertSuccess} from "$lib/alert.js";
     import {goto} from "$app/navigation";
-    import {getQuestionTypes, getQuestionTypeDisplayName} from "$lib/enums/question-types.js";
-    import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/enums/answer-policy.js";
-    import {getLabel} from "$lib/enums/label.js";
-    import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/enums/boolean.js";
+    import {getQuestionTypes, getQuestionTypeDisplayName} from "$lib/utils/question-types.js";
+    import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/utils/answer-policy.js";
+    import {getLabel} from "$lib/utils/label.js";
+    import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
     import {questionOptionListPost} from "$lib/api/QuestionOptionApi.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
 
