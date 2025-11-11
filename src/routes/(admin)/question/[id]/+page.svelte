@@ -1,7 +1,7 @@
 <script>
     import {page} from "$app/state";
     import {onMount} from "svelte";
-    import {questionGet} from "$lib/api/QuestionApi.js";
+    import {questionApi, questionGet} from "$lib/api/QuestionApi.js";
     import {alertError} from "$lib/alert.js";
     import QuestionModel from "$lib/models/QuestionModel.js";
     import {getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
@@ -11,7 +11,7 @@
 
     async function questionDetail() {
         try {
-            question = await questionGet(id);
+            question = await questionApi.get(id);
         } catch (err) {
             await alertError(err.message);
         }

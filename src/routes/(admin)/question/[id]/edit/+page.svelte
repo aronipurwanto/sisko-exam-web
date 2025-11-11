@@ -6,9 +6,9 @@
     import {getQuestionTypes} from "$lib/utils/question-types.js";
     import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/utils/answer-policy.js";
     import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
-    import {questionGet, questionPatch} from "$lib/api/QuestionApi.js";
+    import {questionApi, questionGet, questionPatch} from "$lib/api/QuestionApi.js";
     import {alertConfirm, alertError, alertSuccess} from "$lib/alert.js";
-    import {questionOptionDelete, questionOptionPatch} from "$lib/api/QuestionOptionApi.js";
+    import {questionOptionApi, questionOptionDelete, questionOptionPatch} from "$lib/api/QuestionOptionApi.js";
 
     const {id} = page.params;
     let question = $state({...new QuestionModel()});
@@ -19,7 +19,7 @@
 
     async function questionUpdate() {
         try {
-            await questionPatch(question);
+            await questionApi.patch(question);
             await alertSuccess('update question successfully');
         } catch (err) {
             await alertError(err.message);
@@ -28,7 +28,7 @@
 
     async function questionDetail() {
         try {
-            question = await questionGet(id);
+            question = await questionApi.get(id);
             questionOptions = question.questionOptions;
         } catch (err) {
             await alertError(err.message);
@@ -37,9 +37,9 @@
 
     async function questionOptionUpdate() {
         try {
-            questionOptions = questionOptions.map((option) => {
-                questionOptionPatch(option);
-            });
+            for (const questionOption of questionOptions) {
+                await questionOptionApi.patch(questionOption);
+            }
         } catch (err) {
             await alertError(err.message);
         }
@@ -54,7 +54,7 @@
     async function questionOptionRemove(id) {
         if (!await alertConfirm('are you sure want to delete this question-option?')) return;
         try {
-            await questionOptionDelete(id);
+            await questionOptionApi.delete(id);
             await alertSuccess('delete successfully');
             await questionDetail();
         } catch (err) {

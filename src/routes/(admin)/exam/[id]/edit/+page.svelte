@@ -1,7 +1,7 @@
 <script>
     import {alertError, alertSuccess} from "$lib/alert.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
-    import {examGet, examPatch} from "$lib/api/ExamApi.js";
+    import {examApi, examGet, examPatch} from "$lib/api/ExamApi.js";
     import ExamModel from "$lib/models/ExamModel.js";
     import {getBooleanDisplayYes, getBooleanEnum} from "$lib/utils/boolean.js";
     import {getExamStatus, getExamStatusDisplayName} from "$lib/utils/exam-status.js";
@@ -23,7 +23,7 @@
     async function examEdit() {
         try {
             exam.endAt = end;
-            await examPatch(exam);
+            await examApi.patch(exam);
             await alertSuccess("update exam successfully");
         } catch (err) {
             await alertError(err.message);
@@ -32,7 +32,7 @@
 
     async function examDetails() {
         try {
-            exam = await examGet(id);
+            exam = await examApi.get(id);
         } catch (err) {
             await alertError(err.message);
         }

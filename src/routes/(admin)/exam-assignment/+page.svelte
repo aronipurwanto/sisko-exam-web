@@ -1,14 +1,14 @@
 <script>
 import {onMount} from "svelte";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
-import {examAssignmentDelete, examAssignmentGetList} from "$lib/api/ExamAssignmentApi.js";
+import {examAssignmentApi} from "$lib/api/ExamAssignmentApi.js";
 import {formatDateWIB} from "$lib/utils/times.js";
 
 let examAssignments = $state([]);
 
 async function examAssignmentList() {
     try {
-        examAssignments = await examAssignmentGetList();
+        examAssignments = await examAssignmentApi.getAll();
     } catch (err) {
         await alertError(err.message);
     }
@@ -18,7 +18,7 @@ async function examAssignmentRemove(id) {
     if (!await alertConfirm('are you sure want to delete this exam-assignment?')) return;
 
     try {
-        await examAssignmentDelete(id);
+        await examAssignmentApi.delete(id);
         await alertSuccess();
         await examAssignmentList();
     } catch (err) {
@@ -31,16 +31,16 @@ onMount(async () => {
 });
 </script>
 <svelte:head>
-    <title>Exam-Assignment List</title>
+    <title>Exam Assignment List</title>
 </svelte:head>
 <div class="card shadow-sm border-1 p-4 mb-4">
     <div class="d-flex justify-content-between align-items-center">
         <h3 class="tile-title">
-            <i class="bi bi-table me-1"></i>Table Exam-Assignment
+            <i class="bi bi-table me-1"></i>Table Exam Assignment
         </h3>
         <a class="btn btn-outline-success bi-plus py-1 px-2"
            href="/exam-assignment/add">
-            New Exam-Assignment
+            New Exam Assignment
         </a>
     </div>
     <div class="table-responsive">

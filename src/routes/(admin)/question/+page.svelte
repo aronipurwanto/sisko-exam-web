@@ -1,14 +1,14 @@
 <script>
 import AppTitle from "$lib/components/AppTitle.svelte";
 import {onMount} from "svelte";
-import {questionDelete, questionGetList} from "$lib/api/QuestionApi.js";
+import {questionApi, questionDelete, questionGetList} from "$lib/api/QuestionApi.js";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
 
 let questions = $state([]);
 
 async function questionList() {
     try {
-        questions = await questionGetList();
+        questions = await questionApi.getAll();
     } catch (err) {
         await alertError(err.message);
     }
@@ -18,7 +18,7 @@ async function questionRemove(id) {
     if (!await alertConfirm('are you sure want to delete this question?')) return;
 
     try {
-        await questionDelete(id);
+        await questionApi.delete(id);
         await alertSuccess();
         await questionList();
     } catch (err) {

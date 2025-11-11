@@ -3,7 +3,7 @@
     import {getBooleanDisplayYes} from "$lib/utils/boolean.js";
     import {getExamStatusDisplayName} from "$lib/utils/exam-status.js";
     import ExamModel from "$lib/models/ExamModel.js";
-    import {examGet} from "$lib/api/ExamApi.js";
+    import {examApi, examGet} from "$lib/api/ExamApi.js";
     import {alertError} from "$lib/alert.js";
     import {onMount} from "svelte";
     import {formatDateWIB} from "$lib/utils/times.js";
@@ -13,7 +13,7 @@
 
     async function examDetails() {
         try {
-            exam = await examGet(id);
+            exam = await examApi.get(id);
         } catch (err) {
             await alertError(err.message);
         }

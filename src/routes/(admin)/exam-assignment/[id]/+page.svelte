@@ -6,105 +6,50 @@
     import {examGet} from "$lib/api/ExamApi.js";
     import {alertError} from "$lib/alert.js";
     import {onMount} from "svelte";
+    import ExamAssignmentModel from "$lib/models/ExamAssignmentModel.js";
+    import {examAssignmentApi} from "$lib/api/ExamAssignmentApi.js";
+    import {formatDateWIB} from "$lib/utils/times.js";
 
     const {id} = page.params;
-    let exam = $state({...new ExamModel()})
+    let examAssignment = $state({...new ExamAssignmentModel()})
 
-    function formatDateWIB(dateString) {
-        if (!dateString) return '-';
 
-        const date = new Date(dateString);
-
-        const options = {
-            timeZone: 'Asia/Jakarta',
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        };
-
-        const formatted = date.toLocaleString('id-ID', options);
-        return `${formatted} WIB`;
-    }
-
-    async function examDetails() {
+    async function examAssignmentDetail() {
         try {
-            exam = await examGet(id);
+            examAssignment = await examAssignmentApi.get(id)
         } catch (err) {
             await alertError(err.message);
         }
     }
 
     onMount(async () => {
-        await examDetails();
+        await examAssignmentDetail();
     });
 </script>
 <svelte:head>
-    <title>Exam Details</title>
+    <title>Exam Assignment Details</title>
 </svelte:head>
 <div class="card shadow-sm border-1 p-4 mb-4">
     <h2 class="h4 fw-bold mb-4 text-dark">
-        <i class="bi bi-folder-fill me-1"></i>Exam Details
+        <i class="bi bi-folder-fill me-1"></i>Exam Assignment Details
     </h2>
     <div class="mb-3">
-        <label for="name" class="form-label fw-semibold">Name:</label>
+        <label for="exam-name" class="form-label fw-semibold">Exam Name</label>
         <input
-                id="name"
+                id="exam-name"
                 type="text"
                 class="form-control"
-                bind:value={exam.name}
+                value={examAssignment.examName}
                 readonly
         />
     </div>
     <div class="mb-3">
-        <label for="instruction" class="form-label fw-semibold">Instruction:</label>
+        <label for="groupLabel" class="form-label fw-semibold">Group Label</label>
         <input
-                id="instruction"
+                id="groupLabel"
                 type="text"
                 class="form-control"
-                bind:value={exam.instructions}
-                readonly
-        />
-    </div>
-    <div class="mb-3">
-        <label for="durationMinutes" class="form-label fw-semibold">Duration In Minutes</label>
-        <input
-                id="durationMinutes"
-                type="number"
-                class="form-control"
-                bind:value={exam.durationMinutes}
-                readonly
-        />
-    </div>
-    <div class="mb-3">
-        <label for="randomizeQuestions" class="form-label fw-semibold">Randomize Question?</label>
-        <input
-                id="randomizeQuestions"
-                type="text"
-                class="form-control"
-                value={getBooleanDisplayYes(exam.randomizeQuestions)}
-                readonly
-        />
-    </div>
-    <div class="mb-3">
-        <label for="randomizeOptions" class="form-label fw-semibold">Randomize Options?</label>
-        <input
-                id="randomizeOptions"
-                type="text"
-                class="form-control"
-                value={getBooleanDisplayYes(exam.randomizeOptions)}
-                readonly
-        />
-    </div>
-    <div class="mb-3">
-        <label for="examStatus" class="form-label fw-semibold">Status:</label>
-        <input
-                id="examStatus"
-                type="text"
-                class="form-control"
-                value={getExamStatusDisplayName(exam.status)}
+                value={examAssignment.groupLabel}
                 readonly
         />
     </div>
@@ -114,10 +59,9 @@
                 id="startAt"
                 type="text"
                 class="form-control"
-                value={formatDateWIB(exam.startAt)}
+                value={formatDateWIB(examAssignment.startAt)}
                 readonly
         />
-        <small class="form-text text-muted">Start Exam Time</small>
     </div>
     <div class="mb-3">
         <label for="endAt" class="form-label fw-semibold">End At:</label>
@@ -125,13 +69,42 @@
                 id="endAt"
                 type="text"
                 class="form-control"
-                value={formatDateWIB(exam.endAt)}
+                value={formatDateWIB(examAssignment.endAt)}
                 readonly
         />
-        <small class="form-text text-muted">End Exam Time</small>
+    </div>
+    <div class="mb-3">
+        <label for="maxAttempts" class="form-label fw-semibold">Max Attempts</label>
+        <input
+                id="maxAttempts"
+                type="number"
+                class="form-control"
+                value={examAssignment.maxAttempts}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="accessCode" class="form-label fw-semibold">Access Code</label>
+        <input
+                id="accessCode"
+                type="text"
+                class="form-control"
+                value={examAssignment.accessCode}
+                readonly
+        />
+    </div>
+    <div class="mb-3">
+        <label for="audienceCode" class="form-label fw-semibold">Audience Code</label>
+        <input
+                id="audienceCode"
+                type="text"
+                class="form-control"
+                value={examAssignment.audienceCode}
+                readonly
+        />
     </div>
     <div class="d-flex justify-content-end gap-2 mt-4">
-        <a href="/exam" class="btn btn-outline-secondary">
+        <a href="/exam-assignment" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back
         </a>
     </div>

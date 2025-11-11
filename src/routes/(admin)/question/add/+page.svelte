@@ -1,14 +1,14 @@
 <script>
     import QuestionModel from "$lib/models/QuestionModel.js";
     import QuestionOptionModel from "$lib/models/QuestionOptionModel.js";
-    import {questionPost} from "$lib/api/QuestionApi.js";
+    import {questionApi, questionPost} from "$lib/api/QuestionApi.js";
     import {alertError, alertSuccess} from "$lib/alert.js";
     import {goto} from "$app/navigation";
     import {getQuestionTypes, getQuestionTypeDisplayName} from "$lib/utils/question-types.js";
     import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/utils/answer-policy.js";
     import {getLabel} from "$lib/utils/label.js";
     import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
-    import {questionOptionListPost} from "$lib/api/QuestionOptionApi.js";
+    import {questionOptionApi, questionOptionListPost} from "$lib/api/QuestionOptionApi.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
 
     let question = $state({...new QuestionModel()});
@@ -24,7 +24,7 @@
 
     async function questionAdd() {
         try {
-            question = await questionPost(question);
+            question = await questionApi.post(question);
         } catch (err) {
             await alertError(err.message);
         }
@@ -43,7 +43,13 @@
 
     async function questionOptionAdd() {
         try {
-            await questionOptionListPost(questionOptions);
+            for (const questionOption of questionOptions) {
+                try {
+                    await questionOptionApi.post(questionOption);
+                } catch (err) {
+                    await alertError(err.message);
+                }
+            }
             await alertSuccess("save question option success");
             await goto("/question");
         } catch (err) {

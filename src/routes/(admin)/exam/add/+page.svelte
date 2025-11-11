@@ -1,7 +1,7 @@
 <script>
     import {alertError, alertSuccess} from "$lib/alert.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
-    import {examPost} from "$lib/api/ExamApi.js";
+    import {examApi, examPost} from "$lib/api/ExamApi.js";
     import ExamModel from "$lib/models/ExamModel.js";
     import {getBooleanDisplayYes, getBooleanEnum} from "$lib/utils/boolean.js";
     import {getExamStatus, getExamStatusDisplayName} from "$lib/utils/exam-status.js";
@@ -9,6 +9,7 @@
     import {goto} from "$app/navigation";
 
     let exam = $state({...new ExamModel()});
+    let errors = $state({});
 
     const booleans = getBooleanEnum();
     const status = getExamStatus();
@@ -21,11 +22,15 @@
     async function examAdd() {
         try {
             exam.endAt = end;
-            await examPost(exam);
+            await examApi.post(exam);
             await alertSuccess()
             await goto('/exam')
         } catch (err) {
-            await alertError(err.message);
+            if (err?.error) {
+                errors = err.error;
+            } else {
+                await alertError(err.message);
+            }
         }
     }
 
