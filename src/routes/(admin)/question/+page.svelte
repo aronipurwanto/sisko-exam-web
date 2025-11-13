@@ -1,7 +1,6 @@
 <script>
-import AppTitle from "$lib/components/AppTitle.svelte";
 import {onMount} from "svelte";
-import {questionApi, questionDelete, questionGetList} from "$lib/api/QuestionApi.js";
+import {questionApi} from "$lib/api/QuestionApi.js";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
 
 let questions = $state([]);

@@ -1,7 +1,7 @@
 <script>
     import {page} from "$app/state";
     import {onMount} from "svelte";
-    import {questionApi, questionGet} from "$lib/api/QuestionApi.js";
+    import {questionApi} from "$lib/api/QuestionApi.js";
     import {alertError} from "$lib/alert.js";
     import QuestionModel from "$lib/models/QuestionModel.js";
     import {getBooleanEnumDisplayName} from "$lib/utils/boolean.js";

@@ -1,5 +1,5 @@
 export default class ExamModel {
-    constructor({id = '', name = '', instructions = '', durationMinutes = 60, randomizeQuestions = null, randomizeOptions = null, status = '', startAt = null, endAt = null, examAssignments = []} = {}) {
+    constructor({id = '', name = '', instructions = '', durationMinutes = 0, randomizeQuestions = null, randomizeOptions = null, status = null, startAt = null, endAt = null, examAssignments = []} = {}) {
         this.id = id;
         this.name = name;
         this.instructions = instructions;

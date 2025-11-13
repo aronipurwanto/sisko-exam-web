@@ -1,7 +1,7 @@
 <script>
 import {onMount} from "svelte";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
-import {examApi, examDelete, examGetList} from "$lib/api/ExamApi.js";
+import {examApi} from "$lib/api/ExamApi.js";
 import {getExamStatusDisplayName} from "$lib/utils/exam-status.js";
 import {getBooleanDisplayYes} from "$lib/utils/boolean.js";
 import {formatDateWIB} from "$lib/utils/times.js";

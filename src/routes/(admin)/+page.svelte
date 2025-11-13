@@ -77,7 +77,7 @@
 </script>
 
 <svelte:head>
-    <title>Vali Admin - Free Bootstrap 5 Admin Template</title>
+    <title>Sisko Exam App</title>
 </svelte:head>
 
 <AppTitle

@@ -1,5 +1,4 @@
 import {PUBLIC_SISKO_EXAM_API} from "$env/static/public"
-import {apiRequest} from "$lib/api/BaseApiRequest.js";
 import {http} from "$lib/api/http.js";
 
 const base = `${PUBLIC_SISKO_EXAM_API}/exam`;
