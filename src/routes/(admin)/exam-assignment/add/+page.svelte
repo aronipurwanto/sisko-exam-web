@@ -4,8 +4,8 @@
     import {goto} from "$app/navigation";
     import ExamAssignmentModel from "$lib/models/ExamAssignmentModel.js";
     import {examAssignmentApi} from "$lib/api/ExamAssignmentApi.js";
-    import {examGetList} from "$lib/api/ExamApi.js";
     import {onMount} from "svelte";
+    import {examApi} from "$lib/api/ExamApi.js";
 
     let examAssignment = $state({...new ExamAssignmentModel()});
     let exams = $state([]);
@@ -31,7 +31,7 @@
     }
 
     onMount(async () => {
-        exams = await examGetList();
+        exams = await examApi.getAll();
     });
 </script>
 <svelte:head>

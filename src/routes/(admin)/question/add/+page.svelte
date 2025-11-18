@@ -36,54 +36,54 @@
             }
         }
 
-        // if (question.qtype === types[0]) {
-        //     questionOptions = questionOptions.map(opt => ({
-        //         ...opt,
-        //         questionId: question.id,
-        //     }));
-        //     await alertSuccess("save question success");
-        // } else {
-        //
-        // }
+        if (question.qtype === types[0]) {
+            questionOptions = questionOptions.map(opt => ({
+                ...opt,
+                questionId: question.id,
+            }));
+            await alertSuccess("save question success");
+        } else {
+
+        }
     }
 
-    // async function questionOptionAdd() {
-    //     try {
-    //         for (const questionOption of questionOptions) {
-    //             try {
-    //                 await questionOptionApi.post(questionOption);
-    //             } catch (err) {
-    //                 await alertError(err.message);
-    //             }
-    //         }
-    //         await alertSuccess("save question option success");
-    //         await goto("/question");
-    //     } catch (err) {
-    //         await alertError(err.message);
-    //     }
-    // }
+    async function questionOptionAdd() {
+        try {
+            for (const questionOption of questionOptions) {
+                try {
+                    await questionOptionApi.post(questionOption);
+                } catch (err) {
+                    await alertError(err.message);
+                }
+            }
+            await alertSuccess("save question option success");
+            await goto("/question");
+        } catch (err) {
+            await alertError(err.message);
+        }
+    }
 
-    // function addOption(e) {
-    //     e.preventDefault();
-    //
-    //     questionOptions = [
-    //         ...questionOptions,
-    //         {...new QuestionOptionModel()}
-    //     ];
-    // }
+    function addOption(e) {
+        e.preventDefault();
 
-    // function removeLastOption() {
-    //     if (questionOptions.length > 2) { // misalnya jangan hapus kalau tinggal 1
-    //         questionOptions = questionOptions.slice(0, -1);
-    //     }
-    // }
+        questionOptions = [
+            ...questionOptions,
+            {...new QuestionOptionModel()}
+        ];
+    }
+
+    function removeLastOption() {
+        if (questionOptions.length > 2) { // misalnya jangan hapus kalau tinggal 1
+            questionOptions = questionOptions.slice(0, -1);
+        }
+    }
 
     async function questionForm(event) {
         event.preventDefault();
         await questionAdd();
-        // if (question.qtype === types[0]) {
-        //     await questionOptionAdd();
-        // }
+        if (question.qtype === types[0]) {
+            await questionOptionAdd();
+        }
     }
 </script>
 <svelte:head>
@@ -119,7 +119,7 @@
                 {/each}
             {/if}
         </div>
-        <!--{#if question.qtype === types[0]}-->
+        {#if question.qtype === types[0]}
             <div class="mb-3">
                 <label for="answer-policy" class="form-label fw-semibold">Answer Policy</label>
                 <select
@@ -139,7 +139,7 @@
                     {/each}
                 {/if}
             </div>
-        <!--{/if}-->
+        {/if}
         <div class="mb-3">
             <label for="stem" class="form-label fw-semibold">Stem</label>
             <input
@@ -168,78 +168,78 @@
                 {/each}
             {/if}
         </div>
-        <!--{#if question.qtype === types[0]}-->
-        <!--    {#each questionOptions as questionOption, i}-->
-        <!--        <div class="card border-1 shadow-sm mb-4">-->
-        <!--            <div class="card-body">-->
-        <!--                <h5 class="card-title fw-bold mb-3">-->
-        <!--                    MCO {questionOption.label = labels[i]}-->
-        <!--                </h5>-->
-        <!--                <div class="mb-3">-->
-        <!--                    <label for="label-{i}" class="form-label fw-semibold">Label</label>-->
-        <!--                    <input-->
-        <!--                            id="label-{i}"-->
-        <!--                            class="form-control"-->
-        <!--                            bind:value={questionOption.label}-->
-        <!--                            required-->
-        <!--                            readonly-->
-        <!--                    />-->
-        <!--                </div>-->
-        <!--                <div class="mb-3">-->
-        <!--                    <label for="content-{i}" class="form-label fw-semibold">Content</label>-->
-        <!--                    <input-->
-        <!--                            id="content-{i}"-->
-        <!--                            type="text"-->
-        <!--                            class="form-control"-->
-        <!--                            bind:value={questionOption.content}-->
-        <!--                    />-->
-        <!--                </div>-->
-        <!--                <div class="mb-3">-->
-        <!--                    <label for="correct-{i}" class="form-label fw-semibold">Correct</label>-->
-        <!--                    <select-->
-        <!--                            id="correct-{i}"-->
-        <!--                            class="form-select"-->
-        <!--                            bind:value={questionOption.correct}-->
-        <!--                    >-->
-        <!--                        <option value="" disabled>select correct</option>-->
-        <!--                        {#each booleans as boolean}-->
-        <!--                            <option value={boolean}>{getBooleanEnumDisplayName(boolean)}</option>-->
-        <!--                        {/each}-->
-        <!--                    </select>-->
-        <!--                </div>-->
-        <!--                <div class="mb-3">-->
-        <!--                    <label for="orderIndex-{i}" class="form-label fw-semibold">Order Index</label>-->
-        <!--                    <input-->
-        <!--                            id="orderIndex-{i}"-->
-        <!--                            type="number"-->
-        <!--                            class="form-control"-->
-        <!--                            bind:value={questionOption.orderIndex}-->
-        <!--                    />-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </div>-->
-        <!--    {/each}-->
-        <!--    <div class="d-flex gap-2 mb-4">-->
-        <!--        {#if questionOptions.length < 6}-->
-        <!--            <button-->
-        <!--                    type="button"-->
-        <!--                    class="btn btn-outline-primary bi bi-plus"-->
-        <!--                    onclick={addOption}-->
-        <!--            >-->
-        <!--                Add Option-->
-        <!--            </button>-->
-        <!--        {/if}-->
-        <!--        {#if questionOptions.length > 2}-->
-        <!--            <button-->
-        <!--                    type="button"-->
-        <!--                    class="btn btn-outline-danger bi bi-dash"-->
-        <!--                    onclick={removeLastOption}-->
-        <!--            >-->
-        <!--                Remove Option-->
-        <!--            </button>-->
-        <!--        {/if}-->
-        <!--    </div>-->
-        <!--{/if}-->
+        {#if question.qtype === types[0]}
+            {#each questionOptions as questionOption, i}
+                <div class="card border-1 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">
+                            MCO {questionOption.label = labels[i]}
+                        </h5>
+                        <div class="mb-3">
+                            <label for="label-{i}" class="form-label fw-semibold">Label</label>
+                            <input
+                                    id="label-{i}"
+                                    class="form-control"
+                                    bind:value={questionOption.label}
+                                    required
+                                    readonly
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="content-{i}" class="form-label fw-semibold">Content</label>
+                            <input
+                                    id="content-{i}"
+                                    type="text"
+                                    class="form-control"
+                                    bind:value={questionOption.content}
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="correct-{i}" class="form-label fw-semibold">Correct</label>
+                            <select
+                                    id="correct-{i}"
+                                    class="form-select"
+                                    bind:value={questionOption.correct}
+                            >
+                                <option value="" disabled>select correct</option>
+                                {#each booleans as boolean}
+                                    <option value={boolean}>{getBooleanEnumDisplayName(boolean)}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="orderIndex-{i}" class="form-label fw-semibold">Order Index</label>
+                            <input
+                                    id="orderIndex-{i}"
+                                    type="number"
+                                    class="form-control"
+                                    bind:value={questionOption.orderIndex}
+                            />
+                        </div>
+                    </div>
+                </div>
+            {/each}
+            <div class="d-flex gap-2 mb-4">
+                {#if questionOptions.length < 6}
+                    <button
+                            type="button"
+                            class="btn btn-outline-primary bi bi-plus"
+                            onclick={addOption}
+                    >
+                        Add Option
+                    </button>
+                {/if}
+                {#if questionOptions.length > 2}
+                    <button
+                            type="button"
+                            class="btn btn-outline-danger bi bi-dash"
+                            onclick={removeLastOption}
+                    >
+                        Remove Option
+                    </button>
+                {/if}
+            </div>
+        {/if}
         <div class="d-flex justify-content-end gap-2 mt-4">
             <button type="submit" class="btn btn-outline-success">
                 <i class="bi bi-check me-1"></i>Save

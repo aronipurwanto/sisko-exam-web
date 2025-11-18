@@ -5,7 +5,7 @@
     import QuestionOptionModel from "$lib/models/QuestionOptionModel.js";
     import {getQuestionTypeDisplayName, getQuestionTypes} from "$lib/utils/question-types.js";
     import {getAnswerPolicy, getAnswerPolicyDisplayName} from "$lib/utils/answer-policy.js";
-    import {getBooleanEnum} from "$lib/utils/boolean.js";
+    import {getBooleanEnum, getBooleanEnumDisplayName} from "$lib/utils/boolean.js";
     import {questionApi} from "$lib/api/QuestionApi.js";
     import {alertError, alertSuccess} from "$lib/alert.js";
 
@@ -33,38 +33,38 @@
     async function questionDetail() {
         try {
             question = await questionApi.get(id);
-            // questionOptions = question.questionOptions;
+            questionOptions = question.questionOptions;
         } catch (err) {
             await alertError(err.message);
         }
     }
 
-    // async function questionOptionUpdate() {
-    //     try {
-    //         for (const questionOption of questionOptions) {
-    //             await questionOptionApi.patch(questionOption);
-    //         }
-    //     } catch (err) {
-    //         await alertError(err.message);
-    //     }
-    // }
+    async function questionOptionUpdate() {
+        try {
+            for (const questionOption of questionOptions) {
+                await questionOptionApi.patch(questionOption);
+            }
+        } catch (err) {
+            await alertError(err.message);
+        }
+    }
 
     async function questionForm(e) {
         e.preventDefault();
         await questionUpdate();
-        // await questionOptionUpdate();
+        await questionOptionUpdate();
     }
 
-    // async function questionOptionRemove(id) {
-    //     if (!await alertConfirm('are you sure want to delete this question-option?')) return;
-    //     try {
-    //         await questionOptionApi.delete(id);
-    //         await alertSuccess('delete successfully');
-    //         await questionDetail();
-    //     } catch (err) {
-    //         await alertError(err.message);
-    //     }
-    // }
+    async function questionOptionRemove(id) {
+        if (!await alertConfirm('are you sure want to delete this question-option?')) return;
+        try {
+            await questionOptionApi.delete(id);
+            await alertSuccess('delete successfully');
+            await questionDetail();
+        } catch (err) {
+            await alertError(err.message);
+        }
+    }
 
     onMount(async () => {
         await questionDetail();
@@ -94,7 +94,7 @@
                 {/each}
             {/if}
         </div>
-        <!--{#if question.qtype === types[0]}-->
+        {#if question.qtype === types[0]}
         <div class="mb-3">
             <label for="answer-policy" class="form-label fw-semibold">Answer Policy</label>
             <select
@@ -114,7 +114,7 @@
                 {/each}
             {/if}
         </div>
-        <!--{/if}-->
+        {/if}
         <div class="mb-3">
             <label for="stem" class="form-label fw-semibold">Stem</label>
             <input
@@ -145,73 +145,73 @@
         </div>
 
         <!-- MCO Options -->
-        <!--{#each questionOptions as questionOption, i}-->
-        <!--    <div class="card border-1 shadow-sm mb-4">-->
-        <!--        <div class="card-body">-->
-        <!--            <h5 class="card-title fw-bold mb-3">-->
-        <!--                MCO {questionOption.label || i + 1}-->
-        <!--            </h5>-->
+        {#each questionOptions as questionOption, i}
+            <div class="card border-1 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">
+                        MCO {questionOption.label || i + 1}
+                    </h5>
 
-        <!--            <input type="hidden" bind:value={questionOption.id} />-->
+                    <input type="hidden" bind:value={questionOption.id} />
 
-        <!--            <div class="mb-3">-->
-        <!--                <label for="label-{i}" class="form-label fw-semibold">Label</label>-->
-        <!--                <input-->
-        <!--                        id="label-{i}"-->
-        <!--                        bind:value={questionOption.label}-->
-        <!--                        class="form-control"-->
-        <!--                />-->
-        <!--            </div>-->
+                    <div class="mb-3">
+                        <label for="label-{i}" class="form-label fw-semibold">Label</label>
+                        <input
+                                id="label-{i}"
+                                bind:value={questionOption.label}
+                                class="form-control"
+                        />
+                    </div>
 
-        <!--            <div class="mb-3">-->
-        <!--                <label for="content-{i}" class="form-label fw-semibold">Content</label>-->
-        <!--                <input-->
-        <!--                        id="content-{i}"-->
-        <!--                        type="text"-->
-        <!--                        bind:value={questionOption.content}-->
-        <!--                        class="form-control"-->
-        <!--                />-->
-        <!--            </div>-->
+                    <div class="mb-3">
+                        <label for="content-{i}" class="form-label fw-semibold">Content</label>
+                        <input
+                                id="content-{i}"
+                                type="text"
+                                bind:value={questionOption.content}
+                                class="form-control"
+                        />
+                    </div>
 
-        <!--            <div class="mb-3">-->
-        <!--                <label for="correct-{i}" class="form-label fw-semibold">Correct</label>-->
-        <!--                <select-->
-        <!--                        id="correct-{i}"-->
-        <!--                        bind:value={questionOption.correct}-->
-        <!--                        class="form-select"-->
-        <!--                >-->
-        <!--                    <option value="" disabled>select correct</option>-->
-        <!--                    {#each booleans as boolean}-->
-        <!--                        <option value={boolean} selected={questionOption.correct === boolean}>-->
-        <!--                            {getBooleanEnumDisplayName(boolean)}-->
-        <!--                        </option>-->
-        <!--                    {/each}-->
-        <!--                </select>-->
-        <!--            </div>-->
+                    <div class="mb-3">
+                        <label for="correct-{i}" class="form-label fw-semibold">Correct</label>
+                        <select
+                                id="correct-{i}"
+                                bind:value={questionOption.correct}
+                                class="form-select"
+                        >
+                            <option value="" disabled>select correct</option>
+                            {#each booleans as boolean}
+                                <option value={boolean} selected={questionOption.correct === boolean}>
+                                    {getBooleanEnumDisplayName(boolean)}
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
 
-        <!--            <div class="mb-3">-->
-        <!--                <label for="orderIndex-{i}" class="form-label fw-semibold">Order Index</label>-->
-        <!--                <input-->
-        <!--                        id="orderIndex-{i}"-->
-        <!--                        type="number"-->
-        <!--                        bind:value={questionOption.orderIndex}-->
-        <!--                        class="form-control"-->
-        <!--                />-->
-        <!--            </div>-->
+                    <div class="mb-3">
+                        <label for="orderIndex-{i}" class="form-label fw-semibold">Order Index</label>
+                        <input
+                                id="orderIndex-{i}"
+                                type="number"
+                                bind:value={questionOption.orderIndex}
+                                class="form-control"
+                        />
+                    </div>
 
-        <!--            {#if questionOptions.length > 2}-->
-        <!--                <div class="d-flex justify-content-end">-->
-        <!--                    <button type="button"-->
-        <!--                            onclick={() => questionOptionRemove(questionOption.id)}-->
-        <!--                            class="btn btn-outline-danger btn-sm"-->
-        <!--                    >-->
-        <!--                        <i class="fas fa-trash-alt me-2"></i> Delete-->
-        <!--                    </button>-->
-        <!--                </div>-->
-        <!--            {/if}-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--{/each}-->
+                    {#if questionOptions.length > 2}
+                        <div class="d-flex justify-content-end">
+                            <button type="button"
+                                    onclick={() => questionOptionRemove(questionOption.id)}
+                                    class="btn btn-outline-danger btn-sm"
+                            >
+                                <i class="fas fa-trash-alt me-2"></i> Delete
+                            </button>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        {/each}
 
         <!-- Action Buttons -->
         <div class="d-flex justify-content-end gap-2 mt-3">
