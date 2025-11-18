@@ -1,212 +1,173 @@
 <script>
     import {alertError, alertSuccess} from "$lib/alert.js";
     import AppTitle from "$lib/components/AppTitle.svelte";
-    import {examGet, examPatch} from "$lib/api/ExamApi.js";
-    import ExamModel from "$lib/models/ExamModel.js";
-    import {getBooleanDisplayYes, getBooleanEnum} from "$lib/utils/boolean.js";
-    import {getExamStatus, getExamStatusDisplayName} from "$lib/utils/exam-status.js";
     import {page} from "$app/state";
     import {onMount} from "svelte";
+    import {examAssignmentApi} from "$lib/api/ExamAssignmentApi.js";
+    import {examApi} from "$lib/api/ExamApi.js";
+    import ExamAssignmentModel from "$lib/models/ExamAssignmentModel.js";
 
     const {id} = page.params;
-    let exam = $state({...new ExamModel()});
+    let examAssignment = $state({...new ExamAssignmentModel()});
+    let exams = $state([]);
+    let errors = $state({});
 
-    const booleans = getBooleanEnum();
-    const status = getExamStatus();
-
-    function formatDateTimeLocal(date) {
-        if (!date) return '';
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        const hours = String(d.getHours()).padStart(2, '0');
-        const minutes = String(d.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-    }
-
-    function parseLocalDateTime(isoString) {
-        if (!isoString) return null;
-
-        // Buat objek Date dari string ISO (UTC)
-        const date = new Date(isoString);
-
-        // Ambil offset zona waktu lokal (dalam menit)
-        const offset = date.getTimezoneOffset();
-
-        // Buat waktu baru dalam zona lokal
-        return new Date(date.getTime() - offset * 60000);
-    }
-
-
-    function calculateEndAt() {
-        if (exam.startAt && exam.durationMinutes) {
-            const startDate = new Date(exam.startAt);
-            exam.endAt = new Date(startDate.getTime() + exam.durationMinutes * 60000);
-        }
-    }
-
-    function handleStartAtChange(event) {
-        const value = event.target.value;
-        exam.startAt = value ? new Date(value) : null;
-        calculateEndAt();
-    }
-
-    function handleDurationChange(event) {
-        exam.durationMinutes = parseInt(event.target.value);
-        calculateEndAt();
-    }
-
-    async function examEdit() {
+    async function examAssignmentEdit() {
         try {
-            const examToSend = {
-                ...exam,
-                startAt: exam.startAt ? exam.startAt.toISOString() : null,
-                endAt: exam.endAt ? exam.endAt.toISOString() : null
-            };
-            exam = await examPatch(examToSend);
-            await alertSuccess();
+            await examAssignmentApi.patch(examAssignment);
+            await alertSuccess()
         } catch (err) {
-            console.log(err);
-            await alertError(err.message);
+            if (err?.error) {
+                errors = err.error;
+            } else {
+                await alertError(err.message);
+            }
         }
     }
 
-    async function examDetails() {
+    async function examAssignmentDetail() {
         try {
-            exam = await examGet(id);
-            exam.startAt = parseLocalDateTime(exam.startAt);
-            exam.endAt = parseLocalDateTime(exam.endAt);
+            examAssignment = await examAssignmentApi.get(id)
         } catch (err) {
-            await alertError(err.message);
+            if (err?.error) {
+                errors = err.error;
+            } else {
+                await alertError(err.message);
+            }
         }
     }
 
-    async function examForm(event) {
+    async function examAssignmentForm(event) {
         event.preventDefault();
-        await examEdit();
+        await examAssignmentEdit();
     }
 
     onMount(async () => {
-        await examDetails();
+        await examAssignmentDetail();
+        exams = await examApi.getAll();
     });
 </script>
 <svelte:head>
-    <title>New Exam</title>
+    <title>Edit Exam Assignment</title>
 </svelte:head>
 <AppTitle
         title="Exam"
         desc="This page is add exam"
         iconTitle="bi bi-table"
-        url="/exam"
+        url="/exam-assignment"
 />
 <div class="card shadow-sm border-1 p-4 mb-4">
     <h2 class="h4 fw-bold mb-4 text-dark">
-        <i class="bi bi-folder-fill me-1"></i>New Exam
+        <i class="bi bi-folder-fill me-1"></i>Edit Exam Assignment
     </h2>
-    <form onsubmit={examForm}>
+    <form onsubmit={examAssignmentForm}>
         <div class="mb-3">
-            <label for="name" class="form-label fw-semibold">Name:</label>
+            <label for="examName" class="form-label fw-semibold">Exam Name</label>
+            <select
+                    id="examName"
+                    class="form-select {errors.examId ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.examId}
+            >
+                <option value="" disabled>select exam</option>
+                {#each exams as exam}
+                    <option value={exam.id}>{exam.name}</option>
+                {/each}
+            </select>
+            {#if errors.examId}
+                <small class="text-danger">{errors.examId}</small>
+            {/if}
+        </div>
+        <div class="mb-3">
+            <label for="groupLabel" class="form-label fw-semibold">Group Label</label>
             <input
-                    id="name"
+                    id="groupLabel"
                     type="text"
-                    class="form-control"
-                    bind:value={exam.name}
+                    class="form-control {errors.groupLabel ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.groupLabel}
             />
-        </div>
-        <div class="mb-3">
-            <label for="instruction" class="form-label fw-semibold">Instruction:</label>
-            <input
-                    id="instruction"
-                    type="text"
-                    class="form-control"
-                    bind:value={exam.instructions}
-            />
-        </div>
-        <div class="mb-3">
-            <label for="durationMinutes" class="form-label fw-semibold">Duration In Minutes</label>
-            <input
-                    id="durationMinutes"
-                    type="number"
-                    class="form-control"
-                    value={exam.durationMinutes}
-                    oninput={handleDurationChange}
-            />
-        </div>
-        <div class="mb-3">
-            <label for="randomizeQuestions" class="form-label fw-semibold">Randomize Question?</label>
-            <select
-                    id="randomizeQuestions"
-                    class="form-select"
-                    bind:value={exam.randomizeQuestions}
-            >
-                <option value="" disabled>select correct</option>
-                {#each booleans as boolean}
-                    <option value={boolean}>{getBooleanDisplayYes(boolean)}</option>
+            {#if errors.groupLabel}
+                {#each errors.groupLabel as msg}
+                    <small class="text-danger">{msg}</small><br>
                 {/each}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="randomizeOptions" class="form-label fw-semibold">Randomize Options?</label>
-            <select
-                    id="randomizeOptions"
-                    class="form-select"
-                    bind:value={exam.randomizeOptions}
-            >
-                <option value="" disabled>select correct</option>
-                {#each booleans as boolean}
-                    <option value={boolean}>{getBooleanDisplayYes(boolean)}</option>
-                {/each}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="examStatus" class="form-label fw-semibold">Status:</label>
-            <select
-                    id="examStatus"
-                    class="form-select"
-                    bind:value={exam.status}
-            >
-                <option value="" disabled>select status</option>
-                {#each status as s}
-                    <option value={s}>{getExamStatusDisplayName(s)}</option>
-                {/each}
-            </select>
+            {/if}
         </div>
         <div class="mb-3">
             <label for="startAt" class="form-label fw-semibold">Start At:</label>
             <input
                     id="startAt"
                     type="datetime-local"
-                    class="form-control"
-                    value={formatDateTimeLocal(exam.startAt)}
-                    oninput={handleStartAtChange}
+                    class="form-control {errors.startAt ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.startAt}
             />
-            <small class="form-text text-muted">Start Exam Time</small>
+            {#if errors.startAt}
+                {#each errors.startAt as msg}
+                    <small class="text-danger">{msg}</small><br>
+                {/each}
+            {/if}
+            <small class="form-text text-muted">Start Exam Assignment Time</small>
         </div>
         <div class="mb-3">
             <label for="endAt" class="form-label fw-semibold">End At:</label>
             <input
                     id="endAt"
                     type="datetime-local"
-                    class="form-control"
-                    value={formatDateTimeLocal(exam.endAt)}
-                    readonly
+                    class="form-control {errors.endAt ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.endAt}
             />
-            {#if exam.durationMinutes === 0}
-                <small class="form-text text-muted">
-                    End Exam Time
-                </small>
-            {:else}
-                <small class="form-text text-muted">
-                    automatic set {exam.durationMinutes || 0} minutes after time set
-                </small>
+            {#if errors.endAt}
+                {#each errors.endAt as msg}
+                    <small class="text-danger">{msg}</small><br>
+                {/each}
+            {/if}
+            <small class="form-text text-muted">End Exam Assignment Time</small>
+        </div>
+        <div class="mb-3">
+            <label for="maxAttempts" class="form-label fw-semibold">Max Attempts</label>
+            <input
+                    id="maxAttempts"
+                    type="number"
+                    class="form-control {errors.maxAttempts ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.maxAttempts}
+            />
+            {#if errors.maxAttempts}
+                {#each errors.maxAttempts as msg}
+                    <small class="text-danger">{msg}</small><br>
+                {/each}
+            {/if}
+        </div>
+        <div class="mb-3">
+            <label for="accessCode" class="form-label fw-semibold">Access Code</label>
+            <input
+                    id="accessCode"
+                    type="text"
+                    class="form-control {errors.accessCode ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.accessCode}
+            />
+            {#if errors.accessCode}
+                {#each errors.accessCode as msg}
+                    <small class="text-danger">{msg}</small><br>
+                {/each}
+            {/if}
+        </div>
+        <div class="mb-3">
+            <label for="audienceCode" class="form-label fw-semibold">Audience Code</label>
+            <input
+                    id="audienceCode"
+                    type="text"
+                    class="form-control {errors.audienceCode ? 'is-invalid' : ''}"
+                    bind:value={examAssignment.audienceCode}
+            />
+            {#if errors.audienceCode}
+                {#each errors.audienceCode as msg}
+                    <small class="text-danger">{msg}</small><br>
+                {/each}
             {/if}
         </div>
         <div class="d-flex justify-content-end gap-2 mt-4">
             <button type="submit" class="btn btn-outline-warning">
                 <i class="bi bi-check me-1"></i>Save Changes
             </button>
-            <a href="/exam" class="btn btn-outline-secondary">
+            <a href="/exam-assignment" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Back
             </a>
         </div>

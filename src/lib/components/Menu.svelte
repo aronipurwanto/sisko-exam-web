@@ -38,9 +38,9 @@
                     link: '/exam-assignment'
                 },
                 {
-                    label: 'Widgets',
+                    label: 'Question-Option',
                     icon: 'bi bi-circle-fill',
-                    link: '/widgets'
+                    link: '/question-option'
                 }
             ]
         },

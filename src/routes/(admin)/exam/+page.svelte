@@ -1,7 +1,7 @@
 <script>
 import {onMount} from "svelte";
 import {alertError, alertSuccess, alertConfirm} from "$lib/alert.js";
-import {examDelete, examGetList} from "$lib/api/ExamApi.js";
+import {examApi} from "$lib/api/ExamApi.js";
 import {getExamStatusDisplayName} from "$lib/utils/exam-status.js";
 import {getBooleanDisplayYes} from "$lib/utils/boolean.js";
 import {formatDateWIB} from "$lib/utils/times.js";
@@ -10,7 +10,7 @@ let exams = $state([]);
 
 async function examList() {
     try {
-        exams = await examGetList();
+        exams = await examApi.getAll();
     } catch (err) {
         await alertError(err.message);
     }
@@ -20,7 +20,7 @@ async function examRemove(id) {
     if (!await alertConfirm('are you sure want to delete this exam?')) return;
 
     try {
-        await examDelete(id);
+        await examApi.delete(id);
         await alertSuccess();
         await examList();
     } catch (err) {

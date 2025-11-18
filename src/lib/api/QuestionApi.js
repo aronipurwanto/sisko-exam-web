@@ -1,36 +1,29 @@
 import {PUBLIC_SISKO_EXAM_API} from "$env/static/public"
-import {apiRequest} from "$lib/api/BaseApiRequest.js";
+import {http} from "$lib/api/http.js";
 
-export const questionGetList = async () => {
-    return await apiRequest(`${PUBLIC_SISKO_EXAM_API}/question`);
-}
 
-export const questionGet = async (id) => {
-    return await apiRequest(`${PUBLIC_SISKO_EXAM_API}/question/${id}`);
-}
+const base = `${PUBLIC_SISKO_EXAM_API}/question`;
 
-export const questionPost = async (question) => {
-    return await apiRequest(`${PUBLIC_SISKO_EXAM_API}/question`, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(question)
-    });
-}
-
-export const questionPatch = async (question) => {
-    return await apiRequest(`${PUBLIC_SISKO_EXAM_API}/question/${question.id}`, {
-        method: "PATCH",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(question)
-    });
-}
-
-export const questionDelete = async (id) => {
-    return await apiRequest(`${PUBLIC_SISKO_EXAM_API}/question/${id}`, {
-        method: "DELETE"
-    });
-}
+export const questionApi = {
+    getAll() {
+        return http(base);
+    },
+    get(id) {
+        return http(`${base}/${id}`);
+    },
+    post(payload) {
+        return http(base, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+    },
+    patch(payload) {
+        return http(`${base}/${payload.id}`, {
+            method: "PATCH",
+            body: JSON.stringify(payload)
+        });
+    },
+    delete(id) {
+        return http(`${base}/${id}`, { method: "DELETE" });
+    }
+};
