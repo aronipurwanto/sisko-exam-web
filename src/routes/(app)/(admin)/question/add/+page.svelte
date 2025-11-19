@@ -41,9 +41,6 @@
                 ...opt,
                 questionId: question.id,
             }));
-            await alertSuccess("save question success");
-        } else {
-
         }
     }
 

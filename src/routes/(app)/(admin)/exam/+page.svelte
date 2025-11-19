@@ -88,6 +88,10 @@ onMount(async () => {
                                 class="btn btn-outline-danger py-0 px-1">
                             <i class="bi bi-trash me-1"></i>Delete
                         </button>
+                        <a class="btn btn-outline-warning py-0 px-1 ms-1 me-1"
+                           href="/user/exam-user/{exam.id}">
+                            <i class="bi bi-pencil me-1"></i>Simulation
+                        </a>
                     </td>
                 </tr>
             {/each}

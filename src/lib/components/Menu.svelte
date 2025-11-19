@@ -98,7 +98,7 @@
                 {
                     label: 'User Page',
                     icon: 'bi bi-circle-fill',
-                    link: '/user'
+                    link: '/(user)'
                 },
                 {
                     label: 'Invoice Page',
